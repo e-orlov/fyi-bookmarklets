@@ -1,10 +1,5 @@
-var gulp = require('gulp'),
-	clean = require('gulp-clean'),
-	jshint = require('gulp-jshint'),
-	rename = require('gulp-rename'),
-	size = require('gulp-size'),
-	uglify = require('gulp-uglify'),
-	util = require('gulp-util');
+var gulp = require('gulp');
+var plugins = require("gulp-load-plugins")();
 
 var paths = {
   buildscript: 'gulpfile.js',
@@ -14,21 +9,21 @@ var paths = {
 
 gulp.task('lint', function() {
   gulp.src([paths.buildscript, paths.scripts])
-    .pipe(jshint())
-    .pipe(jshint.reporter('default'));
+    .pipe(plugins.jshint())
+    .pipe(plugins.jshint.reporter('default'));
 });
 
 gulp.task('scripts', function() {
   // Minify and copy all JavaScript (except vendor scripts)
   return gulp.src(paths.scripts)
-    .pipe(uglify())
-    .pipe(size())
+    .pipe(plugins.uglify())
+    .pipe(plugins.size())
     .pipe(gulp.dest('web'));
 });
 
 gulp.task('clean', function() {
   return gulp.src(paths.dest, {read: false})
-    .pipe(clean());
+    .pipe(plugins.clean());
 });
 
 // Rerun the task when a file changes
