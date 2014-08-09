@@ -10,33 +10,39 @@ module.exports = function(grunt) {
       ie: { src: ['src/fyi-ie.js'], dest: 'web/fyi-ie.js' },
       webkit: { src: ['src/fyi-webkit.js'], dest: 'web/fyi-webkit.js' },
       options: {
+        stats: true,
+        mangle: true,
         compress: {
-          booleans: true,
-          cascade: true,
-          comparisons: true,
-          conditionals: true,
+          sequences: true,
+          properties: true,
           dead_code: true,
+          drop_console: true,
           drop_debugger: true,
+          unsafe: true,
+          conditionals: true,
+          comparisons: true,
           evaluate: true,
+          booleans: true,
+          loops: true,
+          unused: true,
           hoist_funs: false,
           hoist_vars: false,
           if_return: true,
           join_vars: true,
-          loops: true,
-          properties: true,
-          sequences: true,
+          cascade: true,
+          negate_iife: true,
           side_effects: true,
-          unsafe: false,
-          unused: true,
           warnings: true,
           global_defs: {}
           },
         codegen: {
-          ie_proof: true,
-          max_line_len: 32767,
           quote_keys: false,
-          semicolons: true,
-          space_colon: false
+          space_colon: false,
+          max_line_len: 32766,
+          ie_proof: false,
+          bracketize: false,
+          comments: false,
+          semicolons: true
         },
         report: 'min'
       }
@@ -86,21 +92,24 @@ module.exports = function(grunt) {
 
   grunt.registerTask('version-suffix', 'add suffix to version', function(bookmarklet, suffix) {
     var jsString = grunt.file.read(bookmarklet).replace(':%25s?', ':%s?');
+    if (!jsString || 0 === jsString.length) grunt.fail.fatal("Can't read from " + bookmarklet);
     jsString = jsString.replace(grunt.config('pkg.version'), grunt.config('pkg.version') + suffix);
-    grunt.file.write(bookmarklet, jsString);
-    grunt.log.writeln(bookmarklet + ' (' + jsString.length + ' bytes)');
+    if (grunt.file.write(bookmarklet, jsString)) {
+      return grunt.log.writeln(bookmarklet + ' (' + jsString.length + ' bytes)');
+    }
+    else grunt.fail.fatal("Can't write to " + bookmarklet);
   });
 
   grunt.registerTask('firefox', 'process firefox', function() {
-    grunt.task.run(['uglify:firefox', 'js2uri:firefox', 'version-suffix:web/fyi-firefox.js:ff']);
+    return grunt.task.run(['uglify:firefox', 'js2uri:firefox', 'version-suffix:web/fyi-firefox.js:ff']);
   });
 
   grunt.registerTask('ie', 'process IE', function() {
-    grunt.task.run(['uglify:ie', 'js2uri:ie', 'version-suffix:web/fyi-ie.js:ie']);
+    return grunt.task.run(['uglify:ie', 'js2uri:ie', 'version-suffix:web/fyi-ie.js:ie']);
   });
 
   grunt.registerTask('webkit', 'process WebKit', function() {
-    grunt.task.run(['uglify:webkit', 'js2uri:webkit', 'version-suffix:web/fyi-webkit.js:wk']);
+    return grunt.task.run(['uglify:webkit', 'js2uri:webkit', 'version-suffix:web/fyi-webkit.js:wk']);
   });
 
   // test task
